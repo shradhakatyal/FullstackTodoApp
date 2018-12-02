@@ -7,13 +7,19 @@ class App extends Component {
   constructor(props) {
     super(props);
     let todos = [];
+    let doneTodos = [];
     if(localStorage.getItem("todos")) {
         todos = JSON.parse(localStorage.getItem("todos"));
     }
+    if(localStorage.getItem("doneTodos")) {
+      todos = JSON.parse(localStorage.getItem("doneTodos"));
+  }
     this.state = {
-        todos
+        todos,
+        doneTodos
     }
     this.onTodosChange = this.onTodosChange.bind(this);
+    this.onDoneTodosChange = this.onDoneTodosChange.bind(this);
     this.onDeleteTodo = this.onDeleteTodo.bind(this);
   }
 
@@ -25,8 +31,18 @@ class App extends Component {
     });
   }
 
-  onDeleteTodo(index) {
+  onDoneTodosChange(index) {
     console.log(index);
+    this.onDeleteTodo(index);
+    let todo = this.state.todos[index];
+    this.setState((prevState) => ({
+      doneTodos: prevState.doneTodos.concat([todo])
+    }), () => {
+      localStorage.setItem("doneTodos", JSON.stringify(this.state.doneTodos));
+    });
+  }
+
+  onDeleteTodo(index) {
     let array = [...this.state.todos];
     if(index > -1) {
       array.splice(index, 1);
@@ -40,7 +56,8 @@ class App extends Component {
     return (
       <div className="ui container">
         <Input todos={this.state.todos} onTodosChange={this.onTodosChange} />
-        <List todos={this.state.todos} onDeleteTodo={this.onDeleteTodo}/>
+        <List todos={this.state.todos} onDeleteTodo={this.onDeleteTodo} onDoneTodos={this.onDoneTodosChange} />
+        <List doneTodos={this.state.doneTodos} />
       </div>
     );
   }
